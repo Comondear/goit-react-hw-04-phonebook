@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
@@ -8,32 +8,19 @@ import { save, load } from './storage';
 
 const STORAGE_KEY = 'contacts';
 
-class App extends Component {
-  state = {
-    // contacts: [
-    //   { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    //   { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    //   { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    //   { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    // ],
-    contacts: [],
-    filter: '',
-  };
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
-    if (load(STORAGE_KEY)) {
-      this.setState({ contacts: load(STORAGE_KEY) });
-    }
-  }
+  useEffect(() => {
+    setContacts(load(STORAGE_KEY));
+  }, [contacts]);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-    if (contacts !== prevState.contacts) {
-      save(STORAGE_KEY, contacts);
-    }
-  }
+  useEffect(() => {
+    setContacts(save(STORAGE_KEY, contacts));
+  }, [contacts]);
 
-  addContact = ({ name, number }) => {
+  const addContact = ({ name, number }) => {
     const { contacts } = this.state;
     const newContact = {
       id: nanoid(),
@@ -43,41 +30,56 @@ class App extends Component {
 
     contacts.find(contact => contact.name === name)
       ? alert(name + ' is already in contacts.')
-      : this.setState(({ contacts }) => ({
-          contacts: [newContact, ...contacts],
-        }));
+      : setContacts(prevContacts => [newContact, ...prevContacts]);
   };
 
-  deleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
+  const deleteContact = contactId => {
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== contactId)
+    );
   };
 
-  changeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value);
   };
 
-  getFilteredContact = () => {
-    const { contacts, filter } = this.state;
-    const normalizedFilter = filter.toLowerCase();
+  // const getFilteredContact = () => {
+  //   // const { contacts, filter } = this.state;
+  //   const normalizedFilter = filter.toLowerCase();
+  //   return contacts.filter(contact =>
+  //     contact.name.toLowerCase().includes(normalizedFilter)
+  //   );
+  // };
+
+  const getFilteredContact = () => {
     return contacts.filter(({ name }) =>
-      name.toLowerCase().includes(normalizedFilter)
+      name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
-  render() {
-    const newItem = this.getFilteredContact();
-    return (
-      <Box>
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.addContact} />
-        <h2>Contacts</h2>
-        <Filter value={this.state.filter} onChange={this.changeFilter} />
-        <ContactList onDelete={this.deleteContact} list={newItem} />
-      </Box>
-    );
-  }
-}
+  // const getFilteredContact = useMemo(() => {
+  //   const normalizedFilter = filter.toLowerCase();
+  //   return contacts.filter(contact =>
+  //     contact.name.toLowerCase().includes(normalizedFilter)
+  //   );
+  // }, [contacts, filter]);
 
-export default App;
+  // const getFilteredContact = useMemo(() => {
+  //   return contacts.filter(item => {
+  //     return item.name
+  //       .toLowerCase()
+  //       .trim()
+  //       .includes(filter.toLowerCase().trim());
+  //   });
+  // }, [contacts, filter]);
+
+  return (
+    <Box>
+      <h1>Phonebook</h1>
+      <ContactForm onSubmit={addContact} />
+      <h2>Contacts</h2>
+      <Filter value={filter} onChange={changeFilter} />
+      <ContactList onDelete={deleteContact} list={getFilteredContact()} />
+    </Box>
+  );
+};
