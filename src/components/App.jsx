@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
@@ -33,6 +33,13 @@ export const App = () => {
       : setContacts(prevContacts => [newContact, ...prevContacts]);
   };
 
+  const getFilteredContact = () => {
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  };
+
   const deleteContact = contactId => {
     setContacts(prevContacts =>
       prevContacts.filter(contact => contact.id !== contactId)
@@ -43,19 +50,11 @@ export const App = () => {
     setFilter(e.currentTarget.value);
   };
 
-  // const getFilteredContact = () => {
-  //   // const { contacts, filter } = this.state;
-  //   const normalizedFilter = filter.toLowerCase();
+  // const getFilteredContact = useMemo(() => {
   //   return contacts.filter(contact =>
-  //     contact.name.toLowerCase().includes(normalizedFilter)
+  //     contact.toLowerCase().includes(filter.toLowerCase())
   //   );
-  // };
-
-  const getFilteredContact = () => {
-    return contacts.filter(({ name }) =>
-      name.toLowerCase().includes(filter.toLowerCase())
-    );
-  };
+  // }, [contacts, filter]);
 
   // const getFilteredContact = useMemo(() => {
   //   const normalizedFilter = filter.toLowerCase();
