@@ -5,10 +5,14 @@ import { Filter } from './Filter/Filter';
 import { nanoid } from 'nanoid';
 import { Box } from './Box.styled';
 import { save, load } from './storage';
+// import initialContacts from '../initialContacts.json';
 
 const STORAGE_KEY = 'contacts';
 
 export const App = () => {
+  // const [contacts, setContacts] = useState(() => {
+  //   return JSON.parse(localStorage.getItem('contacts')) ?? initialContacts;
+  // });
   const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState('');
 
@@ -33,7 +37,11 @@ export const App = () => {
       : setContacts(prevContacts => [newContact, ...prevContacts]);
   };
 
-  const getFilteredContact = () => {
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value);
+  };
+
+  const getFilteredContact = contacts => {
     const normalizedFilter = filter.toLowerCase();
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter)
@@ -46,32 +54,6 @@ export const App = () => {
     );
   };
 
-  const changeFilter = e => {
-    setFilter(e.currentTarget.value);
-  };
-
-  // const getFilteredContact = useMemo(() => {
-  //   return contacts.filter(contact =>
-  //     contact.toLowerCase().includes(filter.toLowerCase())
-  //   );
-  // }, [contacts, filter]);
-
-  // const getFilteredContact = useMemo(() => {
-  //   const normalizedFilter = filter.toLowerCase();
-  //   return contacts.filter(contact =>
-  //     contact.name.toLowerCase().includes(normalizedFilter)
-  //   );
-  // }, [contacts, filter]);
-
-  // const getFilteredContact = useMemo(() => {
-  //   return contacts.filter(item => {
-  //     return item.name
-  //       .toLowerCase()
-  //       .trim()
-  //       .includes(filter.toLowerCase().trim());
-  //   });
-  // }, [contacts, filter]);
-
   return (
     <Box>
       <h1>Phonebook</h1>
@@ -82,3 +64,32 @@ export const App = () => {
     </Box>
   );
 };
+
+// useEffect(() => {
+//   const contacts = localStorage.getItem('contacts');
+//   const parsedContacts = JSON.parse(contacts);
+
+//   parsedContacts ? setContacts(parsedContacts) : setContacts([]);
+// }, []);
+
+// const getFilteredContact = useMemo(() => {
+//   return contacts.filter(contact =>
+//     contact.toLowerCase().includes(filter.toLowerCase())
+//   );
+// }, [contacts, filter]);
+
+// const getFilteredContact = useMemo(() => {
+//   const normalizedFilter = filter.toLowerCase();
+//   return contacts.filter(contact =>
+//     contact.name.toLowerCase().includes(normalizedFilter)
+//   );
+// }, [contacts, filter]);
+
+// const getFilteredContact = useMemo(() => {
+//   return contacts.filter(item => {
+//     return item.name
+//       .toLowerCase()
+//       .trim()
+//       .includes(filter.toLowerCase().trim());
+//   });
+// }, [contacts, filter]);
